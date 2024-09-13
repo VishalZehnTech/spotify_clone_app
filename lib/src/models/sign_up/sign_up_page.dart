@@ -153,7 +153,11 @@ class _SignUpPageState extends State<SignUpPage> {
             padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: CircleAvatar(
               backgroundColor: Colors.transparent,
-              child: Image.network(imagePath, width: 23, height: 23),
+              child: Image.network(
+                imagePath,
+                width: 23,
+                height: 23,
+              ),
             ),
           ),
           Expanded(

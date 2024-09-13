@@ -108,8 +108,8 @@ class _FavoriteArtistsPageState extends State<FavoriteArtistsPage> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                child: Image.asset(
-                                  "assets/images/home/favorite_artists/Honey_Singh.jpg",
+                                child: Image.network(
+                                  "https://www.gettyimages.in/detail/news-photo/indian-rapper-music-producer-singer-and-film-actor-yo-yo-news-photo/452923544",
                                   width: 30,
                                   height: 42,
                                   fit: BoxFit.fitHeight,
@@ -205,8 +205,10 @@ class _FavoriteArtistsPageState extends State<FavoriteArtistsPage> {
                           style: const TextStyle(color: Colors.white),
                         ),
                         const SizedBox(width: 10),
-                        Image.asset("assets/images/home/favorite_artists/Arjit_Singh.jpg",
-                            height: 50, width: 50),
+                        Image.network(
+                            "https://www.gettyimages.in/detail/news-photo/indian-rapper-music-producer-singer-and-film-actor-yo-yo-news-photo/452923544",
+                            height: 50,
+                            width: 50),
                         const SizedBox(width: 10),
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

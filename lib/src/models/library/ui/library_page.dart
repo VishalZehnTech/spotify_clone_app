@@ -79,9 +79,7 @@ class LibraryPage extends StatelessWidget {
                                     ));
                               },
                               child: ListTile(
-                                leading: Image.network(
-                                    // "assets/images/home/favorite_artists/Arjit_Singh.jpg",
-                                    musicModel.themePath ?? "URL Missing"),
+                                leading: Image.network(musicModel.themePath ?? "URL Missing"),
                                 title: Text(musicModel.songName ?? "Unknown Song"),
                                 subtitle: Text(musicModel.singerName ?? "Unknown Singer"),
                               ),

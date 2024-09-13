@@ -49,8 +49,6 @@ class _DrawerPageState extends State<DrawerPage> {
                       child: state.userModel?.photoUrl == null
                           ? const CircleAvatar(backgroundColor: Colors.black)
                           : Image.network(
-                              // "assets/images/home/favorite_artists/Arjit_Singh.jpg",
-                              // "https://lh3.googleusercontent.com/a/ACg8ocJWWmqHmhFVM66Smsyk41t5S4daBaz0HEiB3FciipPMtcniwqc7=s96-c",
                               "${state.userModel?.photoUrl}",
                               height: 45,
                               width: 45,

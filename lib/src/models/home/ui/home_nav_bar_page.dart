@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spotify/src/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/home/bloc/home_bloc.dart';
 import 'package:spotify/src/models/home/ui/home_page.dart';
 import 'package:spotify/src/models/library/ui/library_page.dart';
@@ -16,7 +17,7 @@ class _HomeNavBarPage extends State<HomeNavBarPage> {
   @override
   void initState() {
     super.initState();
-    // context.read<LogBloc>().add(GetUserData());
+    context.read<LogBloc>().add(GetUserData());
   }
 
   @override

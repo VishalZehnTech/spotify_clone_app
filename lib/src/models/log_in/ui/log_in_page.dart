@@ -154,6 +154,7 @@ class _LogInPageState extends State<LogInPage> {
                 imagePath,
                 width: 23,
                 height: 23,
+                // fit: BoxFit.cover,
               ),
             ),
           ),
