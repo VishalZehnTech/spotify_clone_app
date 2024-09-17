@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/src/log_Bloc/log_bloc.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/home/ui/home_nav_bar_page.dart';
 import 'package:spotify/src/models/log_in/ui/log_in_page.dart';
+import 'package:spotify/src/models/sign_up/signup_with_email.dart';
 import 'package:spotify/src/overrides.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -58,12 +59,12 @@ class _SignUpPageState extends State<SignUpPage> {
                           titleText: "Continue with email",
                           imagePath: Overrides.EMAIL_IMAGE_PATH,
                           onTapDestination: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => const SignupWithEmail(),
-                            //   ),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SignupWithEmail(),
+                              ),
+                            );
                           },
                           colorName: Colors.black),
                     ),
