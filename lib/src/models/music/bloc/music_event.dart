@@ -54,3 +54,12 @@ class PositionChangedEvent extends MusicEvent {
   @override
   List<Object> get props => [position];
 }
+
+class MusicPlaybackStateChangedEvent extends MusicEvent {
+  final bool isPlaying;
+
+  const MusicPlaybackStateChangedEvent({required this.isPlaying});
+
+  @override
+  List<Object> get props => [isPlaying];
+}

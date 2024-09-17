@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/src/log_Bloc/log_bloc.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 
 class CommonAppBarLeading extends StatelessWidget {
   const CommonAppBarLeading({
@@ -20,13 +20,6 @@ class CommonAppBarLeading extends StatelessWidget {
             onPressed: () {
               _scaffoldKey.currentState?.openDrawer();
             },
-            // icon: ClipOval(
-            //   // borderRadius: BorderRadius.circular(50.0), // Set th
-            //   child: state.userModel?.photoUrl == null
-            //       ? const CircleAvatar(backgroundColor: Colors.black)
-            //       : Image.network("${state.userModel?.photoUrl}",
-            //           height: 50, width: 65, fit: BoxFit.cover),
-            // ),
             icon: ClipRRect(
               borderRadius: BorderRadius.circular(50.0), // Set th
               child: state.userModel?.photoUrl == null

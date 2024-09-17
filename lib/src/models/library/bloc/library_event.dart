@@ -1,5 +1,16 @@
 part of 'library_bloc.dart';
 
-abstract class LibraryEvent {}
+abstract class LibraryEvent extends Equatable {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}
 
-class LoadMusicModel extends LibraryEvent {}
+class GetPlayListLength extends LibraryEvent {}
+
+class GetMusicModel extends LibraryEvent {}
+
+class RemoveMusicModel extends LibraryEvent {
+  final int index;
+
+  RemoveMusicModel(this.index);
+}

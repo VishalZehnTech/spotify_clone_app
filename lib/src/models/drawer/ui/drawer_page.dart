@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/src/log_Bloc/log_bloc.dart';
-import 'package:spotify/src/models/drawer/ui/profile_page.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
+import 'package:spotify/src/models/profile/ui/profile_page.dart';
 import 'package:spotify/src/models/drawer/ui/setting_privacy_page.dart';
 
 class DrawerPage extends StatefulWidget {

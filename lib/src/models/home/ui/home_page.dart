@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/src/log_Bloc/log_bloc.dart';
+import 'package:spotify/src/models/drawer/ui/drawer_page.dart';
 import 'package:spotify/src/models/home/bloc/home_bloc.dart';
 import 'package:spotify/src/models/home/ui/widgets/shimmer_music_item_card.dart';
 import 'package:spotify/src/models/music/model/music_model.dart';
 import 'package:spotify/src/models/music/ui/favorite_artists_page.dart';
 import 'package:spotify/src/models/music/ui/music_player.dart';
-import 'package:spotify/src/models/drawer/ui/drawer_page.dart';
 import 'package:spotify/src/widgets/common_app_bar_leading.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,8 +20,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<LogBloc>().add(GetUserData());
-
+    // context.read<LogBloc>().add(GetUserData());
     context.read<HomeBloc>().add(GetSongDetails());
   }
 

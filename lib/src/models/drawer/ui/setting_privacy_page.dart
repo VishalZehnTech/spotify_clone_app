@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/src/log_Bloc/log_bloc.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/widgets/Splash_Screen.dart';
 
 class SettingPrivacyPage extends StatelessWidget {
@@ -52,7 +52,7 @@ class SettingPrivacyPage extends StatelessWidget {
                 } else {
                   return BlocListener<LogBloc, LogState>(
                     listener: (context, state) {
-                      if (state.loginStatus == LoginStatus.init) {
+                      if (state.logFieldStatus == LogFieldStatus.none) {
                         Navigator.pushReplacement(
                             context, MaterialPageRoute(builder: (context) => const SplashPage()));
                       }

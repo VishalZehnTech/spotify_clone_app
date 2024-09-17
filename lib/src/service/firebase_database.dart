@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotify/src/models/music/model/music_model.dart';
-import 'package:spotify/src/log_Bloc/model/user_model.dart';
+import 'package:spotify/src/models/log_in/model/user_model.dart';
+import 'package:spotify/src/overrides.dart';
 
 class FirebaseDatabase {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,23 +14,49 @@ class FirebaseDatabase {
 
   Future<User?> logInWithGmailPassword(String email, String password) async {
     try {
-      UserCredential userCredential =
-          await _auth.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      // Handle specific FirebaseAuthException cases
+      if (e.code == 'user-not-found') {
+        debugPrint('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        debugPrint('Wrong password provided for that user.');
+      } else {
+        debugPrint('Error occurred: ${e.message}');
+      }
+      return null;
     } catch (e) {
-      debugPrint("Error : $e");
+      // Handle general exceptions
+      debugPrint('An unexpected error occurred: $e');
+      return null;
+      // rethrow;
     }
-    return null;
   }
 
   Future<User?> signUpWithGmailPassword(String email, String password) async {
     try {
+      debugPrint("Vishal Soner : 0.1111");
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      debugPrint("Vishal Soner : 0");
+
       User? user = userCredential.user;
+      debugPrint("Vishal Soner : 1");
+      if (user != null) {
+        debugPrint("Vishal Soner : 2");
+        await user.updateProfile(photoURL: Overrides.USER_PHOTO_URL);
+        await user.reload();
+        user = _auth.currentUser;
+      }
+
+      debugPrint("Vishal Soner : 3");
       return user;
     } catch (e) {
-      debugPrint("Error : $e");
+      debugPrint('Error creating user: $e');
     }
     return null;
   }
@@ -94,25 +121,6 @@ class FirebaseDatabase {
     }
   }
 
-  // Future<void> storeUserDetails({User? user}) async {
-  //   try {
-  //     if (user != null) {
-  //       await FirebaseFirestore.instance
-  //           .collection('All_Users')
-  //           .doc("${user.displayName}.${user.uid}")
-  //           .set({
-  //         'name': user.displayName,
-  //         'email': user.email,
-  //         'photo_url': user.photoURL,
-  //         'created_at': FieldValue.serverTimestamp(),
-  //         'user_id': user.uid,
-  //       });
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Error : $e");
-  //   }
-  // }
-
   Future<void> storeUserDetails({User? user}) async {
     try {
       if (user != null) {
@@ -126,7 +134,7 @@ class FirebaseDatabase {
           await userDocRef.update({'created_at': FieldValue.serverTimestamp()});
         } else {
           // If the user doesn't exist, create the document.
-          await FirebaseFirestore.instance.collection('All_Users').doc().set({
+          await FirebaseFirestore.instance.collection('All_Users').doc(user.uid).set({
             'name': user.displayName,
             'email': user.email,
             'photo_url': user.photoURL,
@@ -141,16 +149,47 @@ class FirebaseDatabase {
     }
   }
 
+  Future<bool> updateUserName({required String newName}) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userId = prefs.getString('userId');
+
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('All_Users')
+          .where('user_id', isEqualTo: userId)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        // Get a reference to the user's document
+        DocumentReference userDocRef = snapshot.docs.first.reference;
+
+        // Update the user's name
+        await userDocRef.update({'name': newName});
+        debugPrint('User name updated successfully.');
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Error updating user name: $e");
+      return false;
+    }
+    return false;
+  }
+
   Future<UserModel?> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     QuerySnapshot snapshot =
         await _firebaseFirestore.collection('All_Users').where('user_id', isEqualTo: userId).get();
-    if (snapshot.docs.isNotEmpty) {
-      DocumentSnapshot doc = snapshot.docs.first;
-      return UserModel.fromMap(doc.data() as Map<String, dynamic>, userId!);
-    } else {
-      debugPrint('No document found for user_id: $userId');
+    try {
+      if (snapshot.docs.isNotEmpty) {
+        DocumentSnapshot doc = snapshot.docs.first;
+        return UserModel.fromMap(doc.data() as Map<String, dynamic>, userId!);
+      } else {
+        debugPrint('No document found for user_id: $userId');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error GetUserData : $e');
       return null;
     }
   }

@@ -29,17 +29,23 @@ class GetPassword extends LogEvent {
   List<Object> get props => [password];
 }
 
-// Event to capture and update the email field
-enum GenderType { male, female, nonBinary, other, preferNotToSay, none }
+// Event for email focus change
+class EmailFocusChanged extends LogEvent {
+  final bool hasFocus;
+  const EmailFocusChanged({required this.hasFocus});
+}
 
-class GetGender extends LogEvent {
-  final GenderType genderType; // The email address to update
+// Event for User focus change
+class UserFocusChanged extends LogEvent {
+  final bool hasFocus;
+  const UserFocusChanged({required this.hasFocus});
+}
 
-  // Constructor to initialize the email
-  const GetGender({required this.genderType});
+// Event for password focus change
+class PasswordFocusChanged extends LogEvent {
+  final bool hasFocus;
 
-  @override
-  List<Object> get props => [genderType];
+  const PasswordFocusChanged({required this.hasFocus});
 }
 
 // Event to toggle the visibility of the password field

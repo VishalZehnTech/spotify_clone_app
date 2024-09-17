@@ -19,21 +19,13 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     on<SeekEvent>(_seek);
     on<PositionChangedEvent>(_positionChanged);
     on<AddItemToPlaylist>(_addItemToPlaylist);
+    on<MusicPlaybackStateChangedEvent>(_musicPlaybackStateChanged);
 
     _audioPlayer.positionStream.listen((position) {
       add(PositionChangedEvent(position));
     });
   }
 
-  // Future<void> _addItemToPlaylist(AddItemToPlaylist event, Emitter<MusicState> emit) async {
-  //   try {
-  //     debugPrint("Vishal Soner Song : ${event.musicModel}");
-  //     _firebaseDatabase.addItemToPlaylist(event.musicModel);
-  //     emit(state.copyWith(isFavoriteAdd: !state.isFavoriteAdd));
-  //   } catch (e) {
-  //     debugPrint("Error to _addItemToPlaylist : $e");
-  //   }
-  // }
   Future<void> _addItemToPlaylist(AddItemToPlaylist event, Emitter<MusicState> emit) async {
     try {
       debugPrint("Adding song to playlist: ${event.musicModel}");
@@ -56,7 +48,6 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     }
   }
 
-  // Method to handle music loading
   Future<void> _loadMusic(LoadMusicEvent event, Emitter<MusicState> emit) async {
     try {
       emit(state.copyWith(isLoading: true));
@@ -76,7 +67,6 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     }
   }
 
-  // Method to handle play/pause toggling
   Future<void> _togglePlayPause(TogglePlayPauseEvent event, Emitter<MusicState> emit) async {
     try {
       if (_audioPlayer.playing) {
@@ -86,14 +76,11 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         emit(state.copyWith(isPlaying: true));
         await _audioPlayer.play();
       }
-      // emit(state.copyWith(isPlaying: _audioPlayer.playing));
-      // emit(state.copyWith(isPlaying: !state.isPlaying));
     } catch (e) {
       debugPrint("Error toggling play/pause: $e");
     }
   }
 
-  // Method to handle seeking
   Future<void> _seek(SeekEvent event, Emitter<MusicState> emit) async {
     try {
       await _audioPlayer.seek(event.position);
@@ -104,8 +91,11 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     }
   }
 
-  // Method to handle position change
   void _positionChanged(PositionChangedEvent event, Emitter<MusicState> emit) {
     emit(state.copyWith(position: event.position));
+  }
+
+  void _musicPlaybackStateChanged(MusicPlaybackStateChangedEvent event, Emitter<MusicState> emit) {
+    emit(state.copyWith(isPlaying: event.isPlaying));
   }
 }

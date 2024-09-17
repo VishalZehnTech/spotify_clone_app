@@ -167,18 +167,13 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
               if (state.playlistErrorMessage != null) {
                 // Show a Snackbar with an error message if playlistErrorMessage is not null
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.playlistErrorMessage!),
-                    backgroundColor: Colors.red,
-                  ),
+                  SnackBar(content: Text(state.playlistErrorMessage!), backgroundColor: Colors.red),
                 );
               } else if (state.isFavoriteAdd) {
                 // Show a Snackbar with a success message if isFavoriteAdd is true
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Song added to playlist!'),
-                    backgroundColor: Colors.green,
-                  ),
+                      content: Text('Song added to playlist!'), backgroundColor: Colors.green),
                 );
               }
             },

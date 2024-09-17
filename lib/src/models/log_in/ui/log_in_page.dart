@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/src/log_Bloc/log_bloc.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/home/ui/home_nav_bar_page.dart';
 import 'package:spotify/src/models/log_in/ui/login_with_email.dart';
 import 'package:spotify/src/models/sign_up/sign_up_page.dart';
@@ -65,23 +65,8 @@ class _LogInPageState extends State<LogInPage> {
                           colorName: Colors.black),
                     ),
                     const SizedBox(height: 15),
-                    BlocConsumer<LogBloc, LogState>(
-                      builder: (context, state) {
-                        return Container(
-                          height: 50,
-                          decoration: _commonButtonBoxDecoration(),
-                          child: _commonButtonTitleAndIcon(
-                              titleText: "Continue with Google",
-                              imagePath: Overrides.GOOGLE_IMAGE_PATH,
-                              onTapDestination: () async {
-                                context.read<LogBloc>().add(const LogAPI(
-                                      email: "",
-                                      password: "",
-                                      logFieldStatus: LogFieldStatus.signInGoogle,
-                                    ));
-                              }),
-                        );
-                      },
+
+                    BlocListener<LogBloc, LogState>(
                       listener: (BuildContext context, LogState state) {
                         if (state.loginStatus == LoginStatus.success) {
                           Navigator.pushReplacement(
@@ -92,22 +77,35 @@ class _LogInPageState extends State<LogInPage> {
                           );
                         } else if (state.loginStatus == LoginStatus.failed) {
                         } else if (state.loginStatus == LoginStatus.error) {
-                          // ScaffoldMessenger.of(context).showSnackBar(
-                          //   SnackBar(
-                          //     content: Text(state.message.toString()),
-                          //   ),
-                          // );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(state.message.toString())),
+                          );
                         }
                       },
+                      child: Container(
+                        height: 50,
+                        decoration: _commonButtonBoxDecoration(),
+                        child: _commonButtonTitleAndIcon(
+                            titleText: "Continue with Google",
+                            imagePath: Overrides.GOOGLE_IMAGE_PATH,
+                            onTapDestination: () async {
+                              context.read<LogBloc>().add(
+                                    const LogAPI(
+                                      email: "",
+                                      password: "",
+                                      logFieldStatus: LogFieldStatus.signInGoogle,
+                                    ),
+                                  );
+                            }),
+                      ),
                     ),
+                    // },
                     const SizedBox(height: 30),
                     Center(
                       child: Text(
                         "Don't have an account?",
-                        style: _commanTextStyle().copyWith(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style:
+                            _commanTextStyle().copyWith(fontSize: 15, fontWeight: FontWeight.w700),
                       ),
                     ),
                     TextButton(
@@ -119,9 +117,7 @@ class _LogInPageState extends State<LogInPage> {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpPage(),
-                          ),
+                          MaterialPageRoute(builder: (context) => const SignUpPage()),
                         );
                       },
                     ),

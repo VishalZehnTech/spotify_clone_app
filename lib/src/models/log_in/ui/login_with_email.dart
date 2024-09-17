@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify/src/log_Bloc/log_bloc.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/home/ui/home_nav_bar_page.dart';
 
 class LoginWithEmail extends StatefulWidget {
@@ -20,11 +20,22 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
   final passwordController = TextEditingController();
 
   // Key for form validation
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
-  get name => null;
+  @override
+  void initState() {
+    super.initState();
+    emailFocusNode.addListener(() {
+      context.read<LogBloc>().add(EmailFocusChanged(hasFocus: emailFocusNode.hasFocus));
+    });
 
+    passwordFocusNode.addListener(() {
+      context.read<LogBloc>().add(PasswordFocusChanged(hasFocus: passwordFocusNode.hasFocus));
+    });
+  }
+
+  //
   @override
   void dispose() {
     // Dispose of focus nodes and text controllers to free up resources
@@ -42,7 +53,7 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
       body: Padding(
         padding: const EdgeInsets.only(left: 15.0, right: 15.0),
         child: Form(
-          key: formKey, // Key for the form
+          key: _formKey, // Key for the form
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,16 +61,20 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
               Text("Email or username", style: _commonTextStyleForTitle()),
               const SizedBox(height: 10),
               BlocBuilder<LogBloc, LogState>(
-                buildWhen: (previous, current) => (current.email != previous.email),
+                buildWhen: (previous, current) =>
+                    // (current.email != previous.email) ||
+                    (current.isEmailFocused != previous.isEmailFocused),
                 builder: (context, state) {
                   return TextFormField(
                     controller: emailController,
                     focusNode: emailFocusNode,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       filled: true,
-                      fillColor: Color.fromARGB(255, 70, 63, 63),
-                      border: OutlineInputBorder(
+                      fillColor: state.isEmailFocused
+                          ? Colors.grey[600]
+                          : const Color.fromARGB(255, 70, 63, 63),
+                      border: const OutlineInputBorder(
                         borderSide: BorderSide.none,
                       ),
                     ),
@@ -73,10 +88,11 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
                       }
                       return null;
                     },
-                    // onChanged: (value) {
-                    //   // Update email in Bloc
-                    //   context.read<LoginBloc>().add(GetEmail(email: value));
-                    // },
+                    onChanged: (value) {
+                      if (value.length == 1) {
+                        context.read<LogBloc>().add(GetEmail(email: value));
+                      }
+                    },
                   );
                 },
               ),
@@ -85,8 +101,10 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
               const SizedBox(height: 10),
               BlocBuilder<LogBloc, LogState>(
                 buildWhen: (previous, current) =>
-                    (current.password != previous.password) ||
-                    (current.isVisibility != previous.isVisibility),
+                    (current.isVisibility != previous.isVisibility) ||
+                    // (current.password != previous.password) ||
+                    (current.isFormValid != previous.isFormValid) ||
+                    (current.isPasswordFocused != previous.isPasswordFocused),
                 builder: (context, state) {
                   return TextFormField(
                     controller: passwordController,
@@ -96,13 +114,17 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
                     obscureText: !state.isVisibility,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color.fromARGB(255, 70, 63, 63),
+                      // fillColor: const Color.fromARGB(255, 70, 63, 63),
+                      fillColor: state.isPasswordFocused
+                          ? Colors.grey[600]
+                          : const Color.fromARGB(255, 70, 63, 63),
                       border: const OutlineInputBorder(
                         borderSide: BorderSide.none,
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           state.isVisibility ? Icons.visibility : Icons.visibility_off,
+                          color: Colors.white,
                         ),
                         onPressed: () {
                           // Dispatch event to toggle password visibility
@@ -116,37 +138,36 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
                       }
                       return null;
                     },
-                    // onChanged: (value) {
-                    //   // Update email in Bloc
-                    //   context
-                    //       .read<LoginBloc>()
-                    //       .add(GetPassword(password: value));
-                    // },
+                    onChanged: (value) {
+                      if (value.length == 1) {
+                        context.read<LogBloc>().add(GetPassword(password: value));
+                      }
+                    },
                   );
                 },
               ),
               const SizedBox(height: 20),
-              BlocConsumer<LogBloc, LogState>(
-                // Rebuilds only when state changes
-                buildWhen: (previous, current) => false,
+              BlocListener<LogBloc, LogState>(
                 listener: (context, state) {
                   if (state.loginStatus == LoginStatus.success) {
-                    // Clear input fields and navigate to HomePage on successful login
-                    emailController.clear();
-                    passwordController.clear();
-                    Navigator.pushReplacement(
+                    context.read<LogBloc>().add(LogOutAPI());
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const HomeNavBarPage(),
                       ),
                     );
                   } else if (state.loginStatus == LoginStatus.failed) {
+                    // Show failure message on login failure
+                    context.read<LogBloc>().add(LogOutAPI());
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Incorrect Password, Try again'),
                       ),
                     );
                   } else if (state.loginStatus == LoginStatus.error) {
+                    // Show error message on login error
+                    context.read<LogBloc>().add(LogOutAPI());
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(state.message.toString()),
@@ -154,32 +175,33 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
                     );
                   }
                 },
-                builder: (context, state) {
-                  return Center(
-                    child: SizedBox(
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (formKey.currentState?.validate() == true) {
-                            // Trigger login event
-                            context.read<LogBloc>().add(LogAPI(
-                                email: emailController.text,
-                                password: passwordController.text,
-                                logFieldStatus: LogFieldStatus.login));
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                        child: const Text(
-                          "Log in",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
+                child: BlocBuilder<LogBloc, LogState>(
+                  buildWhen: (previous, current) => (current.isFormValid != previous.isFormValid),
+                  builder: (context, state) {
+                    return Center(
+                      child: SizedBox(
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: state.isFormValid
+                              ? () {
+                                  if (_formKey.currentState?.validate() == true) {
+                                    context.read<LogBloc>().add(LogAPI(
+                                        email: emailController.text.trim(),
+                                        password: passwordController.text.trim(),
+                                        logFieldStatus: LogFieldStatus.login));
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: state.isFormValid ? Colors.white : Colors.grey,
                           ),
+                          child: const Text("Log in",
+                              style: TextStyle(fontSize: 18, color: Colors.black)),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 30),
               Center(

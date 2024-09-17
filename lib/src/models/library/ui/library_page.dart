@@ -1,109 +1,139 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spotify/src/models/drawer/ui/drawer_page.dart';
 import 'package:spotify/src/models/library/bloc/library_bloc.dart';
 import 'package:spotify/src/models/music/ui/music_player.dart';
-// import 'package:spotify/src/blocs/library/library_bloc.dart';
 import 'package:spotify/src/widgets/common_app_bar_leading.dart';
 
-class LibraryPage extends StatelessWidget {
+class LibraryPage extends StatefulWidget {
   const LibraryPage({super.key});
 
   @override
+  State<LibraryPage> createState() => _LibraryPageState();
+}
+
+class _LibraryPageState extends State<LibraryPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<LibraryBloc>().add(GetMusicModel());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LibraryBloc(FirebaseFirestore.instance)
-        ..add(LoadMusicModel()), // Load music when the page is created
-      child: Scaffold(
-        key: GlobalKey<ScaffoldState>(),
-        drawer: const DrawerPage(),
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              floating: true,
-              pinned: true,
-              expandedHeight: 70,
-              leading: CommonAppBarLeading(scaffoldKey: GlobalKey<ScaffoldState>()),
-              title: const Text(
-                "Your Library",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.search,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.add,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: const DrawerPage(),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            pinned: true,
+            expandedHeight: 70,
+            leading: CommonAppBarLeading(scaffoldKey: _scaffoldKey),
+            title: const Text(
+              "Your Library",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            BlocBuilder<LibraryBloc, LibraryState>(
-              builder: (context, state) {
-                if (state is LibraryLoading) {
-                  return const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                } else if (state is LibraryLoaded) {
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                        final musicModel = state.musicModel[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 0.0, left: 10, right: 10),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.white,
-                                width: .2,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.search,
+                  size: 30,
+                  color: Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.add,
+                  size: 30,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          BlocBuilder<LibraryBloc, LibraryState>(
+            builder: (context, state) {
+              if (state is LibraryLoading) {
+                return const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              } else if (state is LibraryFailded) {
+                return SliverFillRemaining(
+                  child: Center(
+                    child: Text(state.message,
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                );
+              } else if (state is LibraryLoaded) {
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      final musicModel = state.musicModel[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 0.0, left: 10, right: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.white,
+                              width: .2,
                             ),
-                            margin: const EdgeInsets.symmetric(vertical: 5),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MusicPlayerPage(musicModel: musicModel),
-                                    ));
-                              },
-                              child: ListTile(
-                                leading: Image.network(musicModel.themePath ?? "URL Missing"),
-                                title: Text(musicModel.songName ?? "Unknown Song"),
-                                subtitle: Text(musicModel.singerName ?? "Unknown Singer"),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MusicPlayerPage(musicModel: musicModel),
+                                  ));
+                            },
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(0),
+                              leading: Padding(
+                                padding: const EdgeInsets.only(left: 10.0),
+                                child: Image.network(musicModel.themePath ?? "URL Missing"),
+                              ),
+                              title: Text(musicModel.songName ?? "Unknown Song"),
+                              subtitle: Text(musicModel.singerName ?? "Unknown Singer"),
+                              trailing: IconButton(
+                                onPressed: () {
+                                  context.read<LibraryBloc>().add(RemoveMusicModel(index));
+                                },
+                                icon: const Icon(Icons.delete),
                               ),
                             ),
                           ),
-                        );
-                      },
-                      childCount: state.musicModel.length,
-                    ),
-                  );
-                } else if (state is LibraryError) {
-                  return SliverFillRemaining(
-                    child: Center(child: Text(state.message)),
-                  );
-                } else {
-                  return const SliverFillRemaining(
-                    child: Center(child: Text("Unknown state")),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
+                        ),
+                      );
+                      // }
+                      // return null;
+                    },
+                    childCount: state.musicModel.length,
+                  ),
+                );
+              } else if (state is LibraryError) {
+                return SliverFillRemaining(
+                  child: Center(
+                    child: Text(state.message),
+                  ),
+                );
+              } else {
+                return const SliverFillRemaining(
+                  child: Center(child: Text("Unknown state")),
+                );
+              }
+            },
+          ),
+        ],
       ),
+      // ),
     );
   }
 }
