@@ -6,13 +6,30 @@ import 'package:image_picker/image_picker.dart';
 import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/profile/bloc/profile_bloc.dart';
 
-class EditProfilePage extends StatelessWidget {
+class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final userNameController = TextEditingController();
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
 
+class _EditProfilePageState extends State<EditProfilePage> {
+  final userNameController = TextEditingController();
+
+  @override
+  void deactivate() {
+    context.read<ProfileBloc>().add(ClearProfileData());
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    userNameController.clear();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Listen to changes in userNameController and add an event to ProfileBloc
     userNameController.addListener(() {
       context.read<ProfileBloc>().add(UpdateUserNameField(userName: userNameController.text));
@@ -38,18 +55,16 @@ class EditProfilePage extends StatelessWidget {
             return TextButton(
               onPressed: state.isImageUploaded || state.isSaveButtonEnabled
                   ? () {
-                      if (state.isSaveButtonEnabled) {
-                        context
-                            .read<ProfileBloc>()
-                            .add(UpdateUserName(userName: userNameController.text.trim()));
-                      }
-                      if (state.isImageUploaded) {
-                        context.read<LogBloc>().add(GetUserData());
-                      }
                       if (state.isImageUploaded && state.isSaveButtonEnabled) {
                         context
                             .read<ProfileBloc>()
                             .add(UpdateUserName(userName: userNameController.text.trim()));
+                        context.read<LogBloc>().add(GetUserData());
+                      } else if (state.isSaveButtonEnabled) {
+                        context
+                            .read<ProfileBloc>()
+                            .add(UpdateUserName(userName: userNameController.text.trim()));
+                      } else if (state.isImageUploaded) {
                         context.read<LogBloc>().add(GetUserData());
                       }
                       Navigator.pop(context, true);
@@ -136,7 +151,7 @@ class EditProfilePage extends StatelessWidget {
                             child: TextFormField(
                               controller: userNameController,
                               decoration: InputDecoration(
-                                hintText: logState.userModel?.name,
+                                hintText: logState.userModel?.name ?? "Enter name",
                                 hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
                                 border: const OutlineInputBorder(
                                   borderSide: BorderSide.none,

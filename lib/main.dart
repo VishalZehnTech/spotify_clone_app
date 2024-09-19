@@ -32,5 +32,5 @@ void main() async {
     debugPrint("Error initializing Firebase: $e");
   }
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }

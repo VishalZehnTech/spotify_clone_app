@@ -17,18 +17,20 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    _checkLoginStatus(); // Check login status when the widget is initialized
   }
 
+  // Checks if the user is logged in and navigates to the appropriate page
   Future<void> _checkLoginStatus() async {
-    // Simulate splash screen delay
+    // Simulate a delay for the splash screen
     await Future.delayed(const Duration(milliseconds: 2050));
 
-    // Check if user is logged in
+    // Retrieve SharedPreferences instance
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Check if the user is logged in based on SharedPreferences value
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    // Navigate to homepage if logged in, otherwise to login/signup page
+    // Navigate to the homepage if logged in, otherwise to the login/signup page
     if (isLoggedIn) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const HomeNavBarPage()),
@@ -44,7 +46,7 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        // child: Image.network(Overrides.spotify_ICON_PATH, width: 150),
+        // Display the Spotify icon at the center of the splash screen
         child: Image.asset(Overrides.spotify_ICON_PATH, width: 150),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/home/ui/home_nav_bar_page.dart';
+import 'package:spotify/src/service/firebase_database.dart';
 
 class LoginWithEmail extends StatefulWidget {
   const LoginWithEmail({super.key});
@@ -39,6 +40,12 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
   @override
   void dispose() {
     // Dispose of focus nodes and text controllers to free up resources
+    emailFocusNode.removeListener(() {
+      context.read<LogBloc>().add(EmailFocusChanged(hasFocus: emailFocusNode.hasFocus));
+    });
+    passwordFocusNode.removeListener(() {
+      context.read<LogBloc>().add(PasswordFocusChanged(hasFocus: passwordFocusNode.hasFocus));
+    });
     emailFocusNode.dispose();
     passwordFocusNode.dispose();
     emailController.dispose();
@@ -102,7 +109,7 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
               BlocBuilder<LogBloc, LogState>(
                 buildWhen: (previous, current) =>
                     (current.isVisibility != previous.isVisibility) ||
-                    // (current.password != previous.password) ||
+                    (current.password != previous.password) ||
                     (current.isFormValid != previous.isFormValid) ||
                     (current.isPasswordFocused != previous.isPasswordFocused),
                 builder: (context, state) {
@@ -150,29 +157,16 @@ class _LoginWithEmailState extends State<LoginWithEmail> {
               BlocListener<LogBloc, LogState>(
                 listener: (context, state) {
                   if (state.loginStatus == LoginStatus.success) {
-                    context.read<LogBloc>().add(LogOutAPI());
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeNavBarPage(),
-                      ),
-                    );
-                  } else if (state.loginStatus == LoginStatus.failed) {
-                    // Show failure message on login failure
-                    context.read<LogBloc>().add(LogOutAPI());
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Incorrect Password, Try again'),
-                      ),
-                    );
-                  } else if (state.loginStatus == LoginStatus.error) {
-                    // Show error message on login error
-                    context.read<LogBloc>().add(LogOutAPI());
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.message.toString()),
-                      ),
-                    );
+                        context, MaterialPageRoute(builder: (context) => const HomeNavBarPage()));
+                  } else if (state.loginStatus == LoginStatus.failed ||
+                      state.loginStatus == LoginStatus.error) {
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(
+                    //     content: Text(state.message.toString()),
+                    //     backgroundColor: Colors.red,
+                    //   ),
+                    // );
                   }
                 },
                 child: BlocBuilder<LogBloc, LogState>(

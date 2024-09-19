@@ -30,7 +30,8 @@ class LogState extends Equatable {
       required this.isFormValid,
       this.logFieldStatus = LogFieldStatus.none, // Default focus field is none
       required this.isVisibility, // Required visibility status for password field
-      this.loginStatus = LoginStatus.init, // Default login status is init
+      // this.loginStatus = LoginStatus.init, // Default login status is init
+      required this.loginStatus, // Default login status is init
       this.userModel});
 
   // Method to create a copy of the current state with updated properties
@@ -59,7 +60,7 @@ class LogState extends Equatable {
         logFieldStatus: logFieldStatus ?? this.logFieldStatus,
         isVisibility: isVisibility ?? this.isVisibility,
         loginStatus: loginStatus ?? this.loginStatus,
-        userModel: userModel ?? this.userModel,
+        userModel: userModel,
         isUserFocused: isUserFocused ?? this.isUserFocused);
   }
 

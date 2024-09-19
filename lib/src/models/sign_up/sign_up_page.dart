@@ -69,23 +69,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           colorName: Colors.black),
                     ),
                     const SizedBox(height: 15),
-                    BlocConsumer<LogBloc, LogState>(
-                      builder: (context, state) {
-                        return Container(
-                          height: 50,
-                          decoration: _commonButtonBoxDecoration(),
-                          child: _commonButtonTitleAndIcon(
-                              titleText: "Continue with Google",
-                              imagePath: Overrides.GOOGLE_IMAGE_PATH,
-                              onTapDestination: () async {
-                                context.read<LogBloc>().add(const LogAPI(
-                                      email: "",
-                                      password: "",
-                                      logFieldStatus: LogFieldStatus.signInGoogle,
-                                    ));
-                              }),
-                        );
-                      },
+                    BlocListener<LogBloc, LogState>(
                       listener: (BuildContext context, LogState state) {
                         if (state.loginStatus == LoginStatus.success) {
                           Navigator.pushReplacement(
@@ -95,14 +79,27 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                           );
                         } else if (state.loginStatus == LoginStatus.failed) {
-                        } else if (state.loginStatus == LoginStatus.error) {
-                          // ScaffoldMessenger.of(context).showSnackBar(
-                          //   SnackBar(
-                          //     content: Text(state.message.toString()),
-                          //   ),
-                          // );
-                        }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(state.message.toString()),
+                            ),
+                          );
+                        } else if (state.loginStatus == LoginStatus.error) {}
                       },
+                      child: Container(
+                        height: 50,
+                        decoration: _commonButtonBoxDecoration(),
+                        child: _commonButtonTitleAndIcon(
+                            titleText: "Continue with Google",
+                            imagePath: Overrides.GOOGLE_IMAGE_PATH,
+                            onTapDestination: () async {
+                              context.read<LogBloc>().add(const LogAPI(
+                                    email: "",
+                                    password: "",
+                                    logFieldStatus: LogFieldStatus.signInGoogle,
+                                  ));
+                            }),
+                      ),
                     ),
                     const SizedBox(height: 30),
                     Center(

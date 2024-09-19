@@ -18,6 +18,7 @@ class _LibraryPageState extends State<LibraryPage> {
   @override
   void initState() {
     super.initState();
+    // Dispatch GetMusicModel event to fetch music models when the page is initialized
     context.read<LibraryBloc>().add(GetMusicModel());
   }
 
@@ -25,6 +26,7 @@ class _LibraryPageState extends State<LibraryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      // Drawer for the Library page
       drawer: const DrawerPage(),
       body: CustomScrollView(
         slivers: [
@@ -32,12 +34,14 @@ class _LibraryPageState extends State<LibraryPage> {
             floating: true,
             pinned: true,
             expandedHeight: 70,
+            toolbarHeight: 50,
             leading: CommonAppBarLeading(scaffoldKey: _scaffoldKey),
             title: const Text(
               "Your Library",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             actions: [
+              // IconButton for search functionality
               IconButton(
                 onPressed: () {},
                 icon: const Icon(
@@ -46,6 +50,7 @@ class _LibraryPageState extends State<LibraryPage> {
                   color: Colors.white,
                 ),
               ),
+              // IconButton for adding new items (currently does nothing)
               IconButton(
                 onPressed: () {},
                 icon: const Icon(
@@ -59,10 +64,12 @@ class _LibraryPageState extends State<LibraryPage> {
           BlocBuilder<LibraryBloc, LibraryState>(
             builder: (context, state) {
               if (state is LibraryLoading) {
+                // Show a loading indicator while data is being fetched
                 return const SliverFillRemaining(
                   child: Center(child: CircularProgressIndicator()),
                 );
               } else if (state is LibraryFailded) {
+                // Show error message if fetching the music model failed
                 return SliverFillRemaining(
                   child: Center(
                     child: Text(state.message,
@@ -71,6 +78,7 @@ class _LibraryPageState extends State<LibraryPage> {
                   ),
                 );
               } else if (state is LibraryLoaded) {
+                // Display the list of music items when data is loaded
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
@@ -88,11 +96,12 @@ class _LibraryPageState extends State<LibraryPage> {
                           margin: const EdgeInsets.symmetric(vertical: 5),
                           child: InkWell(
                             onTap: () {
+                              // Navigate to MusicPlayerPage when an item is tapped
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MusicPlayerPage(musicModel: musicModel),
-                                  ));
+                                      builder: (context) =>
+                                          MusicPlayerPage(musicModel: musicModel))).then((_) {});
                             },
                             child: ListTile(
                               contentPadding: const EdgeInsets.all(0),
@@ -104,6 +113,7 @@ class _LibraryPageState extends State<LibraryPage> {
                               subtitle: Text(musicModel.singerName ?? "Unknown Singer"),
                               trailing: IconButton(
                                 onPressed: () {
+                                  // Dispatch RemoveMusicModel event to remove an item from the playlist
                                   context.read<LibraryBloc>().add(RemoveMusicModel(index));
                                 },
                                 icon: const Icon(Icons.delete),
@@ -112,28 +122,25 @@ class _LibraryPageState extends State<LibraryPage> {
                           ),
                         ),
                       );
-                      // }
-                      // return null;
                     },
                     childCount: state.musicModel.length,
                   ),
                 );
               } else if (state is LibraryError) {
+                // Show error message if there was an error in the library
                 return SliverFillRemaining(
                   child: Center(
                     child: Text(state.message),
                   ),
                 );
               } else {
-                return const SliverFillRemaining(
-                  child: Center(child: Text("Unknown state")),
-                );
+                // Handle unknown state
+                return const SliverFillRemaining(); // child: Center(child: Text("Unknown state")));
               }
             },
           ),
         ],
       ),
-      // ),
     );
   }
 }

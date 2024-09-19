@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spotify/src/models/drawer/ui/drawer_page.dart';
 import 'package:spotify/src/models/home/bloc/home_bloc.dart';
 import 'package:spotify/src/models/home/ui/widgets/shimmer_music_item_card.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/music/model/music_model.dart';
 import 'package:spotify/src/models/music/ui/favorite_artists_page.dart';
 import 'package:spotify/src/models/music/ui/music_player.dart';
 import 'package:spotify/src/widgets/common_app_bar_leading.dart';
 
+// HomePage is a StatefulWidget that displays various music categories and favorite artists.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -16,12 +18,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Key to manage the state of the Scaffold.
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
-    // context.read<LogBloc>().add(GetUserData());
-    context.read<HomeBloc>().add(GetSongDetails());
+    // Only call GetUserData if userModel is not already set
+    if (context.read<LogBloc>().state.userModel == null) {
+      context.read<LogBloc>().add(GetUserData());
+    }
   }
 
   @override
@@ -29,9 +35,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-          backgroundColor: Colors.black,
-          toolbarHeight: 50,
-          leading: CommonAppBarLeading(scaffoldKey: _scaffoldKey)),
+        backgroundColor: Colors.black,
+        toolbarHeight: 50,
+        // Leading widget in AppBar
+        leading: CommonAppBarLeading(scaffoldKey: _scaffoldKey),
+      ),
+      // Drawer menu for navigation
       drawer: const DrawerPage(),
       body: SingleChildScrollView(
         child: Padding(
@@ -39,9 +48,11 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // BlocBuilder listens to changes in HomeBloc state
               BlocBuilder<HomeBloc, HomeState>(
                 builder: (context, state) {
                   List<MusicModel?>? favoriteArtist = state.musicModel["favoriteArtist"];
+                  // Show shimmer effect if favorite artists are not loaded yet
                   if (favoriteArtist == null || favoriteArtist.isEmpty) {
                     return const ShimmerMusicItemCard();
                   } else {
@@ -52,6 +63,7 @@ class _HomePageState extends State<HomePage> {
                           "Your favorite artists",
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                         ),
+                        // Horizontal ListView for favorite artists
                         SizedBox(
                           height: 215,
                           child: ListView.builder(
@@ -67,6 +79,7 @@ class _HomePageState extends State<HomePage> {
                                         const EdgeInsets.only(top: 10, left: 10.0, bottom: 10.0),
                                     child: InkWell(
                                       onTap: () {
+                                        // Navigate to FavoriteArtistsPage on tap
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -77,14 +90,12 @@ class _HomePageState extends State<HomePage> {
                                       child: CircleAvatar(
                                         radius: 85,
                                         backgroundImage: NetworkImage(
-                                          // favoriteArtistsAndPath.values.elementAt(index),
                                           "${favoriteArtistModel.themePath}",
                                         ),
                                       ),
                                     ),
                                   ),
                                   Text(
-                                    // favoriteArtistsAndPath.keys.elementAt(index),
                                     "${favoriteArtistModel.singerName}",
                                     style:
                                         const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
@@ -100,6 +111,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               const SizedBox(height: 15),
+              // Display other categories of music using a reusable method
               _commonTitleWithMusicItemCard(
                 titleName: "Recommended for today",
                 modelName: "recommended",
@@ -121,16 +133,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Reusable method to display music categories
   BlocBuilder<HomeBloc, HomeState> _commonTitleWithMusicItemCard(
       {required String titleName, required String modelName}) {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         List<MusicModel?>? recommendedMusic = state.musicModel[modelName];
+        // Show shimmer effect if the music list is not loaded yet
         if (recommendedMusic == null || recommendedMusic.isEmpty) {
           return const ShimmerMusicItemCard();
         } else {
           return Column(
-            // mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -138,6 +151,7 @@ class _HomePageState extends State<HomePage> {
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
               ),
               const SizedBox(height: 10),
+              // Horizontal ListView for music items
               SizedBox(
                 height: 240,
                 child: ListView.builder(
@@ -155,6 +169,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Reusable widget for individual music item cards
   Padding _commonMusicItemCard(BuildContext context, MusicModel musicModel) {
     return Padding(
       padding: const EdgeInsets.only(left: 10.0),
@@ -163,6 +178,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           InkWell(
             onTap: () {
+              // Navigate to MusicPlayerPage on tap
               Navigator.of(context).push(createRoute(
                 onTapDestination: MusicPlayerPage(musicModel: musicModel),
               ));
@@ -201,6 +217,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// Creates a page transition animation when navigating to a new page
 Route createRoute({required Widget onTapDestination}) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => onTapDestination,

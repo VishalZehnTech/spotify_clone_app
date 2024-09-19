@@ -58,7 +58,7 @@ class _CreatePasswordState extends State<CreatePassword> {
             const SizedBox(height: 5),
             BlocBuilder<LogBloc, LogState>(
               buildWhen: (previous, current) =>
-                  // (current.password != previous.password) ||
+                  (current.password != previous.password) ||
                   (current.isPasswordFocused != previous.isPasswordFocused) ||
                   (current.isVisibility != previous.isVisibility),
               builder: (context, state) {
@@ -88,7 +88,7 @@ class _CreatePasswordState extends State<CreatePassword> {
                   ),
                   validator: (value) {
                     if (value!.length < 6) {
-                      return 'Use at least 10 characters';
+                      return 'Use at least 6 characters';
                     }
                     return null;
                   },
@@ -129,9 +129,10 @@ class _CreatePasswordState extends State<CreatePassword> {
                       child: ElevatedButton(
                         onPressed: () {
                           context.read<LogBloc>().add(LogAPI(
-                              email: "${widget.email}",
-                              password: _passwordController.text.trim(),
-                              logFieldStatus: LogFieldStatus.signup));
+                                email: "${widget.email}",
+                                password: _passwordController.text.trim(),
+                                logFieldStatus: LogFieldStatus.signup,
+                              ));
                         },
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                         child: const Text(

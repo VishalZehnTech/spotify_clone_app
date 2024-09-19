@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/widgets/Splash_Screen.dart';
 
+// SettingPrivacyPage is a stateless widget that displays various setting options and a logout button.
 class SettingPrivacyPage extends StatelessWidget {
+  // List of setting items to be displayed in the settings menu.
   final List<String> settingItem = [
     "Account",
     "Content and display",
@@ -32,15 +34,18 @@ class SettingPrivacyPage extends StatelessWidget {
           "Settings",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
+        // Search icon button in the AppBar
         actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
       ),
       body: Column(
         children: [
+          // Expanded ListView to display the list of settings
           Expanded(
             child: ListView.builder(
-              itemCount: settingItem.length + 1,
+              itemCount: settingItem.length + 1, // Add one for the logout button
               itemBuilder: (context, index) {
                 if (index < settingItem.length) {
+                  // Display each setting item
                   return Padding(
                     padding: const EdgeInsets.only(left: 20.0, top: 20, bottom: 15),
                     child: Text(
@@ -50,17 +55,25 @@ class SettingPrivacyPage extends StatelessWidget {
                     ),
                   );
                 } else {
+                  // BlocListener for logout action
                   return BlocListener<LogBloc, LogState>(
                     listener: (context, state) {
                       if (state.logFieldStatus == LogFieldStatus.none) {
-                        Navigator.pushReplacement(
-                            context, MaterialPageRoute(builder: (context) => const SplashPage()));
+                        // Navigate to SplashPage and remove all previous routes
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SplashPage()),
+                          // This condition removes all previous routes
+                          (Route<dynamic> route) => false,
+                        );
                       }
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(top: 10.0, bottom: 40),
+                      // Logout button
                       child: TextButton(
                         onPressed: () {
+                          // Trigger logout event
                           context.read<LogBloc>().add(LogOutAPI());
                         },
                         child: Container(

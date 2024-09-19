@@ -41,7 +41,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
 
     return BlocProvider(
       create: (_) => _musicBloc,
-      child: BlocConsumer<MusicBloc, MusicState>(
+      child: BlocListener<MusicBloc, MusicState>(
         listener: (context, state) {
           if (state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -49,53 +49,55 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
             );
           }
         },
-        builder: (context, state) {
-          if (state.isLoading) {
+        child: BlocBuilder<MusicBloc, MusicState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return Scaffold(
+                appBar: AppBar(
+                  toolbarHeight: 0,
+                  automaticallyImplyLeading: false,
+                ),
+                body: const Center(child: CircularProgressIndicator()),
+              );
+            }
+
             return Scaffold(
               appBar: AppBar(
                 toolbarHeight: 0,
                 automaticallyImplyLeading: false,
               ),
-              body: const Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          return Scaffold(
-            appBar: AppBar(
-              toolbarHeight: 0,
-              automaticallyImplyLeading: false,
-            ),
-            body: Container(
-              height: screenHeight,
-              width: screenWidth,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color.fromARGB(255, 124, 116, 116),
-                    Color.fromARGB(255, 73, 73, 73),
-                    Colors.black,
+              body: Container(
+                height: screenHeight,
+                width: screenWidth,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.fromARGB(255, 124, 116, 116),
+                      Color.fromARGB(255, 73, 73, 73),
+                      Colors.black,
+                    ],
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildTopBar(context, screenWidth),
+                    const Spacer(),
+                    _buildAlbumArt(context, screenWidth),
+                    const Spacer(),
+                    _buildSongInfo(context, screenWidth, state),
+                    const SizedBox(height: 10),
+                    _buildSlider(context, state, screenWidth),
+                    _buildControls(context, state, screenWidth),
                   ],
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildTopBar(context, screenWidth),
-                  const Spacer(),
-                  _buildAlbumArt(context, screenWidth),
-                  const Spacer(),
-                  _buildSongInfo(context, screenWidth, state),
-                  const SizedBox(height: 10),
-                  _buildSlider(context, state, screenWidth),
-                  _buildControls(context, state, screenWidth),
-                ],
-              ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

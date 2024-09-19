@@ -12,18 +12,33 @@ import 'package:spotify/src/service/firebase_database.dart';
 part 'profile_event.dart';
 part 'profile_state.dart';
 
+// Bloc class for handling profile-related events and states
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  final FirebaseDatabase _firebaseDatabase;
+  final FirebaseDatabase _firebaseDatabase; // Service for Firebase operations
+
+  // Constructor for ProfileBloc, initializes with FirebaseDatabase and sets initial state
   ProfileBloc(this._firebaseDatabase) : super(const ProfileState()) {
+    // Register event handlers
     on<UpdateUserName>(_updateUserName);
     on<UpdateUserNameField>(_updateUserNameField);
     on<UploadProfileImage>(_uploadProfileImage);
+    on<ClearProfileData>(_clearProfileData);
   }
 
+  // Handles the ClearProfileData event to reset profile state
+  void _clearProfileData(ClearProfileData event, Emitter<ProfileState> emit) {
+    emit(state.copyWith(isSaveButtonEnabled: false, isImageUploaded: false, imageFilePath: ""));
+    debugPrint("State Clear Profile Data ImageFilePath: ${state.imageFilePath}");
+    debugPrint("State Clear Profile Data isSaveButtonEnabled: ${state.isSaveButtonEnabled}");
+    debugPrint("State Clear Profile Data isImageUploaded: ${state.isImageUploaded}");
+  }
+
+  // Handles the UpdateUserNameField event to enable or disable the save button
   void _updateUserNameField(UpdateUserNameField event, Emitter<ProfileState> emit) {
     emit(state.copyWith(isSaveButtonEnabled: event.userName.trim().isNotEmpty));
   }
 
+  // Handles the UpdateUserName event to update the user's name in Firebase
   void _updateUserName(UpdateUserName event, Emitter<ProfileState> emit) async {
     emit(ProfileLoading());
     try {
@@ -34,12 +49,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       } else {
         emit(const ProfileFailed("Name change Failed"));
       }
+      emit(state.copyWith(isSaveButtonEnabled: false, isImageUploaded: false));
     } catch (e) {
       debugPrint("Error UpdateUserName: $e");
       emit(ProfileError("Error: $e"));
     }
   }
 
+  // Handles the UploadProfileImage event to upload a new profile image
   Future<void> _uploadProfileImage(UploadProfileImage event, Emitter<ProfileState> emit) async {
     emit(ProfileLoading());
     try {
@@ -62,7 +79,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         DocumentReference userDocRef = snapshot.docs.first.reference;
         String? oldPhotoUrl = snapshot.docs.first.get('photo_url') as String?;
 
-        // Step 4: Delete the old image from Firebase Storage if it exists and is a valid URL
+        // Step 2: Delete the old image from Firebase Storage if it exists and is a valid URL
         if (oldPhotoUrl != null &&
             oldPhotoUrl.startsWith('https://firebasestorage.googleapis.com/')) {
           try {
@@ -86,7 +103,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         // Create a new file with the compressed image data
         final compressedImageFile = File(imageFile.path)..writeAsBytesSync(compressedImage!);
 
-        // Step 4: Upload the compressed image
+        // Step 4: Upload the compressed image to Firebase Storage
         final storageRef = FirebaseStorage.instance
             .ref()
             .child('user_photos/${compressedImageFile.path.split('/').last}');

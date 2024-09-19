@@ -5,6 +5,7 @@ import 'package:spotify/src/models/profile/bloc/profile_bloc.dart';
 import 'package:spotify/src/models/profile/ui/edit_profile_page.dart';
 import 'package:spotify/src/models/profile/ui/my_playlist_page.dart';
 import 'package:spotify/src/models/library/bloc/library_bloc.dart';
+import 'package:spotify/src/overrides.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // context.read<LogBloc>().add(GetUserData());
+    // contecxt.read<LogBloc>().add(GetUserData());
     context.read<LibraryBloc>().add(GetPlayListLength());
   }
 
@@ -66,12 +67,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         borderRadius: BorderRadius.circular(100),
                         child: state.userModel?.photoUrl == null
                             ? const CircleAvatar(backgroundColor: Colors.black)
-                            : Image.network(
-                                state.userModel?.photoUrl ??
-                                    "https://imgs.search.brave.com/Tso5b-lOgqvrXcfgrknvzs0lqGmW_rXIwHjY3nkCBFI/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9mcmVl/c3ZnLm9yZy9pbWcv/YWJzdHJhY3QtdXNl/ci1mbGF0LTQucG5n",
-                                height: 110,
-                                width: 110,
-                                fit: BoxFit.cover),
+                            : Image.network(state.userModel?.photoUrl ?? Overrides.USER_PHOTO_URL,
+                                height: 110, width: 110, fit: BoxFit.cover),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0, bottom: 15),
@@ -88,8 +85,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Text(
                                 "${state.userModel?.email}",
                                 style: const TextStyle(color: Colors.white, fontSize: 16),
-                                overflow:
-                                    TextOverflow.ellipsis, // Adds ellipsis when text is too long
+                                // Adds ellipsis when text is too long
+                                overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
                             ),

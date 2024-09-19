@@ -1,24 +1,27 @@
 part of 'music_bloc.dart';
 
+// Class representing the state of music playback
 class MusicState extends Equatable {
-  final bool isPlaying;
-  final Duration position;
-  final Duration duration;
-  final bool isLoading;
-  final String? errorMessage;
-  final bool isFavoriteAdd;
-  final String? playlistErrorMessage; // Add this field for playlist error message
+  final bool isPlaying; // Indicates if music is currently playing
+  final Duration position; // Current playback position
+  final Duration duration; // Total duration of the music
+  final bool isLoading; // Indicates if the music is currently loading
+  final String? errorMessage; // Error message if an error occurs
+  final bool isFavoriteAdd; // Indicates if the music item is added to favorites
+  final String? playlistErrorMessage; // Error message for playlist operations
 
+  // Constructor for MusicState
   const MusicState({
     required this.isPlaying,
-    this.position = Duration.zero,
-    this.duration = Duration.zero,
-    this.isLoading = false,
+    this.position = Duration.zero, // Default to zero duration
+    this.duration = Duration.zero, // Default to zero duration
+    this.isLoading = false, // Default to not loading
     this.errorMessage,
     required this.isFavoriteAdd,
     this.playlistErrorMessage, // Initialize with a default value
   });
 
+  // Method to create a copy of the state with updated fields
   MusicState copyWith({
     bool? isPlaying,
     Duration? position,
@@ -26,7 +29,7 @@ class MusicState extends Equatable {
     bool? isLoading,
     String? errorMessage,
     bool? isFavoriteAdd,
-    String? playlistErrorMessage, // Add this parameter for copying
+    String? playlistErrorMessage, // Parameter for copying
   }) {
     return MusicState(
       isPlaying: isPlaying ?? this.isPlaying,

@@ -65,7 +65,6 @@ class _LogInPageState extends State<LogInPage> {
                           colorName: Colors.black),
                     ),
                     const SizedBox(height: 15),
-
                     BlocListener<LogBloc, LogState>(
                       listener: (BuildContext context, LogState state) {
                         if (state.loginStatus == LoginStatus.success) {
@@ -75,31 +74,31 @@ class _LogInPageState extends State<LogInPage> {
                               builder: (context) => const HomeNavBarPage(),
                             ),
                           );
-                        } else if (state.loginStatus == LoginStatus.failed) {
-                        } else if (state.loginStatus == LoginStatus.error) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(state.message.toString())),
-                          );
                         }
+                        
                       },
-                      child: Container(
-                        height: 50,
-                        decoration: _commonButtonBoxDecoration(),
-                        child: _commonButtonTitleAndIcon(
-                            titleText: "Continue with Google",
-                            imagePath: Overrides.GOOGLE_IMAGE_PATH,
-                            onTapDestination: () async {
-                              context.read<LogBloc>().add(
-                                    const LogAPI(
-                                      email: "",
-                                      password: "",
-                                      logFieldStatus: LogFieldStatus.signInGoogle,
-                                    ),
-                                  );
-                            }),
+                      child: BlocBuilder<LogBloc, LogState>(
+                        builder: (BuildContext context, LogState state) {
+                          return Container(
+                            height: 50,
+                            decoration: _commonButtonBoxDecoration(),
+                            child: _commonButtonTitleAndIcon(
+                              titleText: "Continue with Google",
+                              imagePath: Overrides.GOOGLE_IMAGE_PATH,
+                              onTapDestination: () async {
+                                context.read<LogBloc>().add(
+                                      const LogAPI(
+                                        email: "",
+                                        password: "",
+                                        logFieldStatus: LogFieldStatus.signInGoogle,
+                                      ),
+                                    );
+                              },
+                            ),
+                          );
+                        },
                       ),
                     ),
-                    // },
                     const SizedBox(height: 30),
                     Center(
                       child: Text(
