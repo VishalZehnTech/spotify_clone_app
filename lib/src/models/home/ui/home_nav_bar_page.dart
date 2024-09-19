@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spotify/src/models/home/bloc/home_bloc.dart';
 import 'package:spotify/src/models/home/ui/home_page.dart';
 import 'package:spotify/src/models/library/ui/library_page.dart';
+import 'package:spotify/src/models/log_in/log_Bloc/log_bloc.dart';
 import 'package:spotify/src/models/search/ui/search_page.dart';
 
 // HomeNavBarPage is a stateful widget that manages the navigation between the Home, Search, and Library pages.
@@ -19,6 +20,11 @@ class _HomeNavBarPage extends State<HomeNavBarPage> {
     super.initState();
     // Triggers fetching of song details when the widget is first created.
     context.read<HomeBloc>().add(GetSongDetails());
+
+    // Only call GetUserData if userModel is not already set
+    if (context.read<LogBloc>().state.userModel == null) {
+      context.read<LogBloc>().add(GetUserData());
+    }
   }
 
   @override

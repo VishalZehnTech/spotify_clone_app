@@ -22,15 +22,6 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
-  void initState() {
-    super.initState();
-    // Only call GetUserData if userModel is not already set
-    if (context.read<LogBloc>().state.userModel == null) {
-      context.read<LogBloc>().add(GetUserData());
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
